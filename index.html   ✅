@@ -3,97 +3,121 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Schusszähler Mobile</title>
+<title>Schusszähler</title>
 
 <style>
-/* Wichtig: sorgt dafür, dass nichts "zu breit" wird */
-* { box-sizing: border-box; }
+/* absolute Pflicht */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
 
 body {
+    margin: 0;
+    padding: 16px;
+    background: #cfc7bd;
     font-family: Calibri, Arial, sans-serif;
-    background:#cfc7bd;            /* äußerer Hintergrund */
-    margin:0;
-    padding:16px;
 }
 
 .container {
-    max-width:480px;
-    margin:auto;
-    background:#efe7dc;            /* GANZE APP: warmes Braun */
-    padding:18px;
-    border:1px solid #b9a995;
-    border-radius:14px;
-    box-shadow:0 6px 16px rgba(0,0,0,0.18);
+    max-width: 480px;
+    margin: auto;
+    background: #efe7dc;
+    padding: 18px;
+    border-radius: 14px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
 }
 
+/* Überschrift */
 h1 {
-    text-align:center;
-    font-size:24px;
-    margin:0 0 18px 0;
+    text-align: center;
+    margin: 0 0 20px 0;
 }
 
+/* Labels */
 label {
-    font-weight:bold;
-    margin-top:14px;
-    display:block;
-    font-size:14px;
+    display: block;
+    margin-top: 14px;
+    font-weight: bold;
+    font-size: 14px;
 }
 
-/* Fix: explizit border-box + block für alle Controls */
-input, select, button {
-    width:100%;
-    display:block;
-    box-sizing:border-box;
-    border-radius:8px;
-    font-size:16px;
+/* === WICHTIGER FIX === */
+input,
+select,
+button {
+    width: 100%;
+    max-width: 100%;
+    display: block;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
 }
 
-/* Inputs/Selects */
-input, select {
-    padding:12px;
-    margin-top:6px;
-    border:1px solid #b7aa9a;
-    background:#ffffff;
-}
-
-/* Optional: Number-Felder "ruhiger" (Spinner bleibt je nach Browser, aber Layout passt) */
-input[type="number"] {
-    appearance: auto;
+/* Inputs */
+input,
+select {
+    margin-top: 6px;
+    border: 1px solid #b7aa9a;
+    background: #fff;
 }
 
 /* oberstes Feld leicht grün */
 #geraetNeu {
-    background:#eef7e9;
-    border-color:#86b686;
+    background: #eef7e9;
+    border-color: #86b686;
 }
 
+/* 🔴 Spinner komplett entfernen → Problem gelöst */
+input[type=number] {
+    -moz-appearance: textfield;
+}
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Buttons */
 button {
-    padding:13px;
-    margin-top:14px;
-    cursor:pointer;
-    border:none;
+    border: none;
+    cursor: pointer;
+    margin-top: 14px;
 }
 
-.primary { background:#2f6fb0; color:white; }
-.secondary { background:#e6ded3; border:1px solid #c1b4a4; color:#000; }
-.danger { background:#b73a2d; color:white; }
+.primary {
+    background: #2f6fb0;
+    color: #fff;
+}
 
+.secondary {
+    background: #e6ded3;
+    border: 1px solid #c1b4a4;
+}
+
+.danger {
+    background: #b73a2d;
+    color: #fff;
+}
+
+/* Gesamtbox */
 .total {
-    margin:20px 0;
-    padding:18px;
-    background:#ffffff;
-    border:1px solid #c1b4a4;
-    border-radius:12px;
-    text-align:center;
-    font-size:22px;
-    font-weight:bold;
+    margin: 20px 0;
+    padding: 18px;
+    background: #fff;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    border: 1px solid #c1b4a4;
 }
 
 .info {
-    font-size:12px;
-    color:#555;
-    text-align:center;
-    margin-top:14px;
+    text-align: center;
+    font-size: 12px;
+    margin-top: 14px;
+    color: #555;
 }
 </style>
 </head>
@@ -104,18 +128,18 @@ button {
 <h1>Schusszähler</h1>
 
 <label>Neues Sportgerät</label>
-<input type="text" id="geraetNeu" placeholder="z.B. Stgw 57/03">
-<button class="secondary" onclick="neuesGeraet()">Sportgerät hinzufügen</button>
+<input type="text" id="geraetNeu" placeholder="z.B. Stgw 57">
+<button class="secondary" onclick="neuesGeraet()">Hinzufügen</button>
 
 <label>Sportgerät auswählen</label>
 <select id="geraetSelect" onchange="ladeGeraet()">
     <option value="">– auswählen –</option>
 </select>
 
-<label>Startsaldo Schusszahl</label>
+<label>Startsaldo</label>
 <input type="number" id="startsaldo" oninput="aktualisieren()">
 
-<label>Neuer Eintrag (Munition)</label>
+<label>Neuer Eintrag</label>
 <input type="number" id="neuerEintrag">
 <button class="primary" onclick="addEintrag()">Eintrag hinzufügen</button>
 
@@ -154,82 +178,71 @@ function ladeDropdown() {
 }
 
 function neuesGeraet() {
-    const name = document.getElementById("geraetNeu").value.trim();
+    const name = geraetNeu.value.trim();
     if (!name) return;
     daten[name] = { startsaldo: 0, eintraege: [] };
     speichern();
-    document.getElementById("geraetNeu").value = "";
+    geraetNeu.value = "";
     ladeDropdown();
-    document.getElementById("geraetSelect").value = name;
+    geraetSelect.value = name;
     ladeGeraet();
 }
 
 function ladeGeraet() {
-    aktuellesGeraet = document.getElementById("geraetSelect").value;
+    aktuellesGeraet = geraetSelect.value;
     if (!aktuellesGeraet) return;
-    document.getElementById("startsaldo").value = daten[aktuellesGeraet].startsaldo;
+    startsaldo.value = daten[aktuellesGeraet].startsaldo;
     anzeigen();
 }
 
 function aktualisieren() {
     if (!aktuellesGeraet) return;
-    daten[aktuellesGeraet].startsaldo =
-        Number(document.getElementById("startsaldo").value) || 0;
+    daten[aktuellesGeraet].startsaldo = Number(startsaldo.value) || 0;
     anzeigen();
 }
 
 function addEintrag() {
     if (!aktuellesGeraet) return;
-    const wert = Number(document.getElementById("neuerEintrag").value);
+    const wert = Number(neuerEintrag.value);
     if (wert <= 0) return;
-
-    daten[aktuellesGeraet].eintraege.push({
-        datum: new Date().toLocaleDateString(),
-        menge: wert
-    });
-
-    document.getElementById("neuerEintrag").value = "";
+    daten[aktuellesGeraet].eintraege.push({ menge: wert });
+    neuerEintrag.value = "";
     speichern();
     anzeigen();
 }
 
 function anzeigen() {
-    const g = daten[aktuellesGeraet];
-    let total = g.startsaldo;
-    g.eintraege.forEach(e => total += e.menge);
+    let total = daten[aktuellesGeraet].startsaldo;
+    daten[aktuellesGeraet].eintraege.forEach(e => total += e.menge);
     document.getElementById("total").innerText = total;
-    speichern();
 }
 
 function laufwechsel() {
     if (!aktuellesGeraet) return;
     if (!confirm("Neuen Lauf starten?")) return;
     daten[aktuellesGeraet] = { startsaldo: 0, eintraege: [] };
-    document.getElementById("startsaldo").value = 0;
+    startsaldo.value = 0;
     anzeigen();
 }
 
 function geraetLoeschen() {
     if (!aktuellesGeraet) return;
-    if (!confirm("Sportgerät wirklich komplett löschen?")) return;
+    if (!confirm("Sportgerät wirklich löschen?")) return;
     delete daten[aktuellesGeraet];
     aktuellesGeraet = "";
     speichern();
     ladeDropdown();
-    document.getElementById("startsaldo").value = "";
-    document.getElementById("total").innerText = "0";
+    total.innerText = "0";
 }
 
 function exportCSV() {
     if (!aktuellesGeraet) return;
-    let csv = "Datum;Menge\n";
-    daten[aktuellesGeraet].eintraege.forEach(e => {
-        csv += `${e.datum};${e.menge}\n`;
-    });
+    let csv = "Menge\n";
+    daten[aktuellesGeraet].eintraege.forEach(e => csv += e.menge + "\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = aktuellesGeraet + "_Schussliste.csv";
+    a.download = "schussliste.csv";
     a.click();
 }
 
