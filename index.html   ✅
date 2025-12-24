@@ -6,13 +6,12 @@
 <title>Schusszähler Mobile</title>
 
 <style>
-* {
-    box-sizing: border-box;
-}
+/* Wichtig: sorgt dafür, dass nichts "zu breit" wird */
+* { box-sizing: border-box; }
 
 body {
     font-family: Calibri, Arial, sans-serif;
-    background:#cfc7bd; /* äußerer Hintergrund */
+    background:#cfc7bd;            /* äußerer Hintergrund */
     margin:0;
     padding:16px;
 }
@@ -20,7 +19,7 @@ body {
 .container {
     max-width:480px;
     margin:auto;
-    background:#efe7dc; /* GANZE APP braun eingefärbt */
+    background:#efe7dc;            /* GANZE APP: warmes Braun */
     padding:18px;
     border:1px solid #b9a995;
     border-radius:14px;
@@ -30,7 +29,7 @@ body {
 h1 {
     text-align:center;
     font-size:24px;
-    margin-bottom:18px;
+    margin:0 0 18px 0;
 }
 
 label {
@@ -40,14 +39,26 @@ label {
     font-size:14px;
 }
 
-input, select {
+/* Fix: explizit border-box + block für alle Controls */
+input, select, button {
     width:100%;
+    display:block;
+    box-sizing:border-box;
+    border-radius:8px;
+    font-size:16px;
+}
+
+/* Inputs/Selects */
+input, select {
     padding:12px;
     margin-top:6px;
-    font-size:16px;
     border:1px solid #b7aa9a;
-    border-radius:8px;
     background:#ffffff;
+}
+
+/* Optional: Number-Felder "ruhiger" (Spinner bleibt je nach Browser, aber Layout passt) */
+input[type="number"] {
+    appearance: auto;
 }
 
 /* oberstes Feld leicht grün */
@@ -57,29 +68,15 @@ input, select {
 }
 
 button {
-    width:100%;
     padding:13px;
     margin-top:14px;
-    font-size:16px;
-    border-radius:8px;
     cursor:pointer;
     border:none;
 }
 
-.primary {
-    background:#2f6fb0;
-    color:white;
-}
-
-.secondary {
-    background:#e6ded3;
-    border:1px solid #c1b4a4;
-}
-
-.danger {
-    background:#b73a2d;
-    color:white;
-}
+.primary { background:#2f6fb0; color:white; }
+.secondary { background:#e6ded3; border:1px solid #c1b4a4; color:#000; }
+.danger { background:#b73a2d; color:white; }
 
 .total {
     margin:20px 0;
@@ -112,7 +109,7 @@ button {
 
 <label>Sportgerät auswählen</label>
 <select id="geraetSelect" onchange="ladeGeraet()">
-<option value="">– auswählen –</option>
+    <option value="">– auswählen –</option>
 </select>
 
 <label>Startsaldo Schusszahl</label>
