@@ -6,33 +6,30 @@
 <title>Schusszähler</title>
 
 <style>
-/* absolute Pflicht */
-*,
-*::before,
-*::after {
+* {
     box-sizing: border-box;
 }
 
 body {
     margin: 0;
     padding: 16px;
-    background: #cfc7bd;
+    background: #c9b8a6;
     font-family: Calibri, Arial, sans-serif;
 }
 
+/* Hauptkarte */
 .container {
     max-width: 480px;
     margin: auto;
-    background: #efe7dc;
+    background: #f1e8dd;
     padding: 18px;
     border-radius: 14px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
 }
 
-/* Überschrift */
 h1 {
     text-align: center;
-    margin: 0 0 20px 0;
+    margin-bottom: 18px;
 }
 
 /* Labels */
@@ -43,74 +40,70 @@ label {
     font-size: 14px;
 }
 
-/* === WICHTIGER FIX === */
-input,
-select,
-button {
+/* === DER ENTSCHEIDENDE FIX === */
+.field {
     width: 100%;
-    max-width: 100%;
-    display: block;
-    padding: 12px;
-    font-size: 16px;
+    overflow: hidden;          /* 🔒 schneidet ALLES ab */
     border-radius: 8px;
+    margin-top: 6px;
 }
 
-/* Inputs */
+/* Inputs / Selects */
 input,
 select {
-    margin-top: 6px;
-    border: 1px solid #b7aa9a;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #b5a896;
     background: #fff;
+    border-radius: 8px;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 /* oberstes Feld leicht grün */
 #geraetNeu {
-    background: #eef7e9;
-    border-color: #86b686;
+    background: #e9f6e6;
+    border-color: #7fb27f;
 }
 
-/* 🔴 Spinner komplett entfernen → Problem gelöst */
-input[type=number] {
-    -moz-appearance: textfield;
-}
-input[type=number]::-webkit-outer-spin-button,
-input[type=number]::-webkit-inner-spin-button {
+/* Spinner & Extras ENTFERNEN */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+input[type=number] {
+    -moz-appearance: textfield;
 }
 
 /* Buttons */
 button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
     margin-top: 14px;
 }
 
-.primary {
-    background: #2f6fb0;
-    color: #fff;
-}
+.primary { background:#2f6fb0; color:white; }
+.secondary { background:#e3dbd1; border:1px solid #b5a896; }
+.danger { background:#b7372a; color:white; }
 
-.secondary {
-    background: #e6ded3;
-    border: 1px solid #c1b4a4;
-}
-
-.danger {
-    background: #b73a2d;
-    color: #fff;
-}
-
-/* Gesamtbox */
+/* Gesamt */
 .total {
     margin: 20px 0;
     padding: 18px;
-    background: #fff;
+    background: white;
     border-radius: 12px;
     text-align: center;
     font-size: 22px;
     font-weight: bold;
-    border: 1px solid #c1b4a4;
+    border: 1px solid #b5a896;
 }
 
 .info {
@@ -128,24 +121,31 @@ button {
 <h1>Schusszähler</h1>
 
 <label>Neues Sportgerät</label>
-<input type="text" id="geraetNeu" placeholder="z.B. Stgw 57">
+<div class="field">
+    <input type="text" id="geraetNeu" placeholder="z.B. Stgw 57">
+</div>
 <button class="secondary" onclick="neuesGeraet()">Hinzufügen</button>
 
 <label>Sportgerät auswählen</label>
-<select id="geraetSelect" onchange="ladeGeraet()">
-    <option value="">– auswählen –</option>
-</select>
+<div class="field">
+    <select id="geraetSelect" onchange="ladeGeraet()">
+        <option value="">– auswählen –</option>
+    </select>
+</div>
 
 <label>Startsaldo</label>
-<input type="number" id="startsaldo" oninput="aktualisieren()">
+<div class="field">
+    <input type="number" id="startsaldo" oninput="aktualisieren()">
+</div>
 
 <label>Neuer Eintrag</label>
-<input type="number" id="neuerEintrag">
+<div class="field">
+    <input type="number" id="neuerEintrag">
+</div>
 <button class="primary" onclick="addEintrag()">Eintrag hinzufügen</button>
 
 <div class="total">
-Gesamt<br>
-<span id="total">0</span>
+Gesamt<br><span id="total">0</span>
 </div>
 
 <button class="secondary" onclick="laufwechsel()">Neuer Lauf</button>
@@ -162,92 +162,74 @@ Offlinefähig · Daten nur lokal gespeichert
 let daten = JSON.parse(localStorage.getItem("schusszaehler")) || {};
 let aktuellesGeraet = "";
 
-function speichern() {
-    localStorage.setItem("schusszaehler", JSON.stringify(daten));
-}
+function speichern(){ localStorage.setItem("schusszaehler", JSON.stringify(daten)); }
 
-function ladeDropdown() {
-    const sel = document.getElementById("geraetSelect");
-    sel.innerHTML = '<option value="">– auswählen –</option>';
-    for (let g in daten) {
-        const o = document.createElement("option");
-        o.value = g;
-        o.text = g;
-        sel.appendChild(o);
+function ladeDropdown(){
+    geraetSelect.innerHTML='<option value="">– auswählen –</option>';
+    for(let g in daten){
+        const o=document.createElement("option");
+        o.value=g; o.text=g;
+        geraetSelect.appendChild(o);
     }
 }
 
-function neuesGeraet() {
-    const name = geraetNeu.value.trim();
-    if (!name) return;
-    daten[name] = { startsaldo: 0, eintraege: [] };
-    speichern();
-    geraetNeu.value = "";
-    ladeDropdown();
-    geraetSelect.value = name;
-    ladeGeraet();
+function neuesGeraet(){
+    const n=geraetNeu.value.trim();
+    if(!n) return;
+    daten[n]={startsaldo:0,eintraege:[]};
+    speichern(); geraetNeu.value="";
+    ladeDropdown(); geraetSelect.value=n; ladeGeraet();
 }
 
-function ladeGeraet() {
-    aktuellesGeraet = geraetSelect.value;
-    if (!aktuellesGeraet) return;
-    startsaldo.value = daten[aktuellesGeraet].startsaldo;
+function ladeGeraet(){
+    aktuellesGeraet=geraetSelect.value;
+    if(!aktuellesGeraet) return;
+    startsaldo.value=daten[aktuellesGeraet].startsaldo;
     anzeigen();
 }
 
-function aktualisieren() {
-    if (!aktuellesGeraet) return;
-    daten[aktuellesGeraet].startsaldo = Number(startsaldo.value) || 0;
+function aktualisieren(){
+    if(!aktuellesGeraet) return;
+    daten[aktuellesGeraet].startsaldo=Number(startsaldo.value)||0;
     anzeigen();
 }
 
-function addEintrag() {
-    if (!aktuellesGeraet) return;
-    const wert = Number(neuerEintrag.value);
-    if (wert <= 0) return;
-    daten[aktuellesGeraet].eintraege.push({ menge: wert });
-    neuerEintrag.value = "";
-    speichern();
-    anzeigen();
+function addEintrag(){
+    if(!aktuellesGeraet) return;
+    const w=Number(neuerEintrag.value);
+    if(w<=0) return;
+    daten[aktuellesGeraet].eintraege.push({menge:w});
+    neuerEintrag.value=""; speichern(); anzeigen();
 }
 
-function anzeigen() {
-    let total = daten[aktuellesGeraet].startsaldo;
-    daten[aktuellesGeraet].eintraege.forEach(e => total += e.menge);
-    document.getElementById("total").innerText = total;
+function anzeigen(){
+    let t=daten[aktuellesGeraet].startsaldo;
+    daten[aktuellesGeraet].eintraege.forEach(e=>t+=e.menge);
+    total.innerText=t;
 }
 
-function laufwechsel() {
-    if (!aktuellesGeraet) return;
-    if (!confirm("Neuen Lauf starten?")) return;
-    daten[aktuellesGeraet] = { startsaldo: 0, eintraege: [] };
-    startsaldo.value = 0;
-    anzeigen();
+function laufwechsel(){
+    if(!aktuellesGeraet||!confirm("Neuen Lauf starten?")) return;
+    daten[aktuellesGeraet]={startsaldo:0,eintraege:[]};
+    startsaldo.value=0; anzeigen();
 }
 
-function geraetLoeschen() {
-    if (!aktuellesGeraet) return;
-    if (!confirm("Sportgerät wirklich löschen?")) return;
-    delete daten[aktuellesGeraet];
-    aktuellesGeraet = "";
-    speichern();
-    ladeDropdown();
-    total.innerText = "0";
+function geraetLoeschen(){
+    if(!aktuellesGeraet||!confirm("Sportgerät löschen?")) return;
+    delete daten[aktuellesGeraet]; aktuellesGeraet="";
+    speichern(); ladeDropdown(); total.innerText="0";
 }
 
-function exportCSV() {
-    if (!aktuellesGeraet) return;
-    let csv = "Menge\n";
-    daten[aktuellesGeraet].eintraege.forEach(e => csv += e.menge + "\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "schussliste.csv";
-    a.click();
+function exportCSV(){
+    if(!aktuellesGeraet) return;
+    let csv="Menge\n";
+    daten[aktuellesGeraet].eintraege.forEach(e=>csv+=e.menge+"\n");
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+    a.download="schussliste.csv"; a.click();
 }
 
-window.onload = ladeDropdown;
+window.onload=ladeDropdown;
 </script>
-
 </body>
 </html>
